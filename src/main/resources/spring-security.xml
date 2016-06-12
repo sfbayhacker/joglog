@@ -10,10 +10,10 @@
         
     <security:global-method-security pre-post-annotations="enabled"/>
 
+    <security:http pattern="/swagger*" security="none"/>
     <security:http pattern="/auth/*" security="none"/>
     <security:http pattern="/register/*" security="none"/>
     <security:http pattern="/api/*" entry-point-ref="restAuthenticationEntryPoint" create-session="stateless">
-        <!--security:intercept-url pattern="/api/*" access="IS_AUTHENTICATED_FULLY"/-->
         <security:custom-filter before="FORM_LOGIN_FILTER" ref="jwtAuthenticationFilter"/>
         <security:csrf disabled="true"/>
     </security:http>
@@ -34,8 +34,4 @@
     <bean id="jwtAuthenticationProvider" class="jogLog.security.JwtAuthenticationProvider"/>
 
     <bean id="restAuthenticationEntryPoint" class="jogLog.security.RESTAuthenticationEntryPoint"/>
-    
-    <bean id="noAuthenticationEntryPoint" class="jogLog.security.RESTNoAuthenticationEntryPoint"/> 
-    
-    <bean id="saltSource" class="jogLog.security.ApplicationSaltSource"/>
 </beans>

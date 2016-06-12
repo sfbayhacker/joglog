@@ -1,12 +1,10 @@
 package jogLog;
 
-import jogLog.controller.UserController;
 import com.google.common.base.Predicate;
 import static com.google.common.base.Predicates.or;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -55,7 +53,7 @@ public class Application {
 
     private Predicate<String> authPaths() {
         return or(
-                regex("/api/authenticate.*")
+                regex("/api/auth.*")
         );
     }
     
@@ -72,7 +70,7 @@ public class Application {
 
     private Predicate<String> registerPaths() {
         return or(
-                regex("/api/registration.*")
+                regex("/api/register.*")
         );
     }
     

@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  *
  * @author Kish
  */
-@Configuration
+//@Configuration
 public class WebSecurityAuthConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final Logger logger = Logger.getLogger(WebSecurityAuthConfig.class);
