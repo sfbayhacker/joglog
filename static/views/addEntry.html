@@ -1,0 +1,27 @@
+<div class="col-md-6 col-md-offset-3">
+    <h2>Create New Entry</h2>
+    <hr/>
+    <form ng-submit="createEntry()" ng-controller="EntryController">
+        <div ng-if="isAdmin()" class="form-group">
+            <label for="mealDate">User</label>
+            <div>{{entryUserNameForAdd}}</div>
+        </div>
+        <div class="form-group">
+            <label for="mealDate">Date</label>
+            <input type="date" placeholder="yyyy-MM-dd" name="date" id="date" class="form-control" required />
+            <input ng-if="isAdmin()" type="hidden" name="userId" id="userId" value="{{entryUserForAdd}}">
+        </div>
+        <div class="form-group">
+            <label for="time">Time (0 - 23 h)</label>
+            <input type="number" min="0" max="23" name="time" id="time" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="distance">Distance</label>
+            <input type="number" min="0" max="20000" name="distance" id="distance" class="form-control" required />
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Create Entry" id="submit" class="btn btn-primary"/>
+            <a href="#/entries" class="btn btn-link">Cancel</a>
+        </div>
+    </form>
+</div>

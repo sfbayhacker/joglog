@@ -1,0 +1,34 @@
+<div class="col-md-6 col-md-offset-3">
+    <h2>Edit User</h2>
+    <hr/>
+    <form ng-submit="editUser()" ng-controller="UserController">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" ng-model="editingUser.email" name="email" id="email" class="form-control" ng-blur="checkUniqueEdit()" required />
+            <input type="hidden" name="uid" id="uid" value="{{editingUser.id}}" class="form-control">
+        </div>
+         <div ng-if="isEmailTaken()" class="form-group">
+            <label for="emailError" style="color:red">This email is already in use. Please use a different email.</label>
+        </div>
+        <div class="form-group">
+            <label for="uname">Name</label>
+            <input type="text" ng-model="editingUser.name" name="uname" id="uname" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" ng-model="editingUser.password" name="password" id="password" class="form-control" required />
+        </div>
+        <div ng-if="isAdmin()" class="form-group">
+           <label for="password">Role</label>
+           <select id="srole"  class="form-control" required >
+              <option value="USER" selected="selected">USER</option>
+              <option value="MANAGER">MANAGER</option>
+              <option value="ADMIN">ADMIN</option>
+           </select>
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Edit User" id="submit" class="btn btn-primary"/>
+            <a href="#/users" class="btn btn-link">Cancel</a>
+        </div>
+    </form>
+</div>

@@ -1,12 +1,12 @@
 package jogLog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -24,6 +24,7 @@ public class User {
     private String email;
     private String password;
     private String name;
+    private String salt;
     private Date createdDate;
     private String deleted;
     
@@ -148,6 +149,21 @@ public class User {
      */
     public void setDeleted(String deleted) {
         this.deleted = deleted;
+    }
+
+    /**
+     * @return the salt
+     */
+    @JsonIgnore
+    public String getSalt() {
+        return salt;
+    }
+
+    /**
+     * @param salt the salt to set
+     */
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
     
 }

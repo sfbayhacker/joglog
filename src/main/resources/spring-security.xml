@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <!-- security config -->
+        
+    <security:global-method-security pre-post-annotations="enabled"/>
+
+    <security:http pattern="/auth/*" security="none"/>
+    <security:http pattern="/register/*" security="none"/>
+    <security:http pattern="/api/*" entry-point-ref="restAuthenticationEntryPoint" create-session="stateless">
+        <!--security:intercept-url pattern="/api/*" access="IS_AUTHENTICATED_FULLY"/-->
+        <security:custom-filter before="FORM_LOGIN_FILTER" ref="jwtAuthenticationFilter"/>
+        <security:csrf disabled="true"/>
+    </security:http>
+
+    <security:authentication-manager alias="authenticationManager">
+        <security:authentication-provider ref="jwtAuthenticationProvider" />
+    </security:authentication-manager>
+
+    <!-- beans config -->
+
+    <bean id="jwtAuthenticationFilter" class="jogLog.security.JwtAuthenticationFilter">
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationSuccessHandler" ref="jwtAuthenticationSuccessHandler" />
+    </bean>
+
+    <bean id="jwtAuthenticationSuccessHandler" class="jogLog.security.JwtAuthenticationSuccessHandler"/>
+
+    <bean id="jwtAuthenticationProvider" class="jogLog.security.JwtAuthenticationProvider"/>
+
+    <bean id="restAuthenticationEntryPoint" class="jogLog.security.RESTAuthenticationEntryPoint"/>
+    
+    <bean id="noAuthenticationEntryPoint" class="jogLog.security.RESTNoAuthenticationEntryPoint"/> 
+    
+    <bean id="saltSource" class="jogLog.security.ApplicationSaltSource"/>
+</beans>

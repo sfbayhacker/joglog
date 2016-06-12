@@ -1,5 +1,7 @@
 package jogLog.controller;
 
+import java.util.Arrays;
+import jogLog.security.AuthenticatedUser;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
@@ -9,24 +11,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class BaseController {
 
     protected boolean hasAnyRole(String... roles) {
-        org.springframework.security.core.userdetails.User principal
-                = (org.springframework.security.core.userdetails.User) 
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthenticatedUser principal
+                = (AuthenticatedUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String r = principal.getAuthorities().iterator().next().getAuthority();
 
-        for(String role: roles) {
-            if (role.equals(r)) return true;
-        }
+        System.out.println("user role :: " + r);
         
-        return false;
+        return Arrays.stream(roles).anyMatch(role -> role.equals(r));
     }
     
     protected String getPrincipalEmail() {
-        org.springframework.security.core.userdetails.User principal
-                = (org.springframework.security.core.userdetails.User) 
-                SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        AuthenticatedUser principal
+                = (AuthenticatedUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
+        System.out.println("principal :: " + principal);
+        
         return principal.getUsername();
     }
 }

@@ -1,0 +1,18 @@
+<div class="col-md-6 col-md-offset-3">
+    <h2>Login</h2>
+    <hr/>
+    <form ng-submit="login()" ng-controller="LoginController">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" ng-model="string" name="email" id="email" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" class="form-control" required />
+        </div>
+        <div class="form-actions">
+            <input type="submit" value="Login" id="submit" class="btn btn-primary"/>
+            <a href="#/register" class="btn btn-link">Register</a>
+        </div>
+    </form>
+</div>

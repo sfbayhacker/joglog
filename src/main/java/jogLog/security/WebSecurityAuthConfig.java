@@ -1,4 +1,4 @@
-package jogLog.config;
+package jogLog.security;
 
 import jogLog.entity.User;
 import jogLog.repository.UserDAO;

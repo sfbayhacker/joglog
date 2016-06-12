@@ -29,6 +29,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ *
+ * @author Kish
+ */
 @Api(value = "/api/entries", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
 @RestController
 @RequestMapping(value = {"/api/entries"}, produces = MediaType.APPLICATION_JSON_VALUE)

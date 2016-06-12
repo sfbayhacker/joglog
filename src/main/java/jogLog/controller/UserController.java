@@ -1,5 +1,6 @@
 package jogLog.controller;
 
+import com.google.common.hash.Hashing;
 import jogLog.entity.Role;
 import jogLog.entity.User;
 import jogLog.repository.EntryDAO;
@@ -10,15 +11,18 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.codec.Charsets;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +52,7 @@ public class UserController extends BaseController {
     @Autowired
     RoleDAO roleDAO;
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     @ApiOperation(value = " Creates a user ", response = String.class)
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -66,9 +71,7 @@ public class UserController extends BaseController {
 
         logger.debug("create()");
 
-        if (!hasAnyRole("ADMIN", "MANAGER") || 
-                (!Role.USER.equals(roleId) && !hasAnyRole("ADMIN"))
-            ) {
+        if (!Role.USER.equals(roleId) && !hasAnyRole("ROLE_ADMIN")) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
             return null;
         }
@@ -85,8 +88,18 @@ public class UserController extends BaseController {
             user = new User();
             user.setEmail(email);
             user.setName(name);
-            user.setPassword(password);
+            
+            long salt = Calendar.getInstance().getTime().getTime();
+            
+            final String hashed = Hashing.sha256()
+            .hashString(password + salt, Charsets.UTF_8)
+            .toString();
+            
+            System.out.println("hashString :: " + (password + salt));
+            
+            user.setPassword(hashed);
             user.setRole(new Role(roleId));
+            user.setSalt(""+salt);
 
             userDAO.save(user);
         } catch (Exception ex) {
@@ -96,6 +109,7 @@ public class UserController extends BaseController {
         return new ResponseEntity<>("User succesfully created!", HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Get users. Allows filtering based on role and email. ", response = User.class)
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -110,13 +124,6 @@ public class UserController extends BaseController {
             @RequestHeader(name = "size", required = false) Integer size,
             HttpServletResponse response) throws IOException {
         logger.debug("getUsers(" + field + "," + value + ")");
-        
-        if (!hasAnyRole("ADMIN", "MANAGER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return null;
-        }
-        
-        //System.out.println("Principal :: " + p);
         
         PageRequest pageRequest = null;
         

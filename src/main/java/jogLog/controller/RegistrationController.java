@@ -1,31 +1,33 @@
 package jogLog.controller;
 
+import com.google.common.hash.Hashing;
 import jogLog.entity.Role;
 import jogLog.entity.User;
 import jogLog.repository.UserDAO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.Calendar;
+import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.codec.Charsets;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author Kish
  */
-@Api(value = "/api/registration", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
+@Api(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
 @RestController
-@RequestMapping(value = {"/api/registration"}, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = {"/register"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class RegistrationController {
 
     private static final Logger logger = Logger.getLogger(RegistrationController.class);
@@ -61,8 +63,18 @@ public class RegistrationController {
             user = new User();
             user.setEmail(email);
             user.setName(name);
-            user.setPassword(password);
-            user.setRole(new Role("USER"));
+            
+            long salt = Calendar.getInstance().getTime().getTime();
+            
+            final String hashed = Hashing.sha256()
+            .hashString(password + salt, Charsets.UTF_8)
+            .toString();
+            
+            System.out.println("hashString :: " + (password + salt));    
+            
+            user.setPassword(hashed);
+            user.setRole(new Role("ROLE_USER"));
+            user.setSalt(""+salt);
             
             user = userDAO.save(user);
         } catch (Exception ex) {
