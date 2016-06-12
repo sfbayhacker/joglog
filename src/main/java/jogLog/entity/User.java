@@ -42,6 +42,7 @@ public class User {
     /**
      * @return the id
      */
+    @JsonIgnore
     public long getId() {
         return id;
     }
@@ -126,6 +127,7 @@ public class User {
     /**
      * @return the createdDate
      */
+    @JsonIgnore
     public Date getCreatedDate() {
         return createdDate;
     }
@@ -140,6 +142,7 @@ public class User {
     /**
      * @return the deleted
      */
+    @JsonIgnore
     public String getDeleted() {
         return deleted;
     }
