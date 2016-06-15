@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Kish
  */
 @Api(value = "/auth", produces = MediaType.APPLICATION_JSON_VALUE, 
-        consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
+        consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "https")
 @RestController
 @RequestMapping(value = {"/auth"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AuthController extends BaseController {

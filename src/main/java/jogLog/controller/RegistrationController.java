@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Kish
  */
-@Api(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
+@Api(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "https")
 @RestController
 @RequestMapping(value = {"/register"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class RegistrationController {

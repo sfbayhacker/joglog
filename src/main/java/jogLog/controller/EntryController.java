@@ -37,7 +37,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Kish
  */
-@Api(value = "/api/entries", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
+@Api(value = "/api/entries", produces = MediaType.APPLICATION_JSON_VALUE, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "https")
 @RestController
 @RequestMapping(value = {"/api/entries"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class EntryController extends BaseController {

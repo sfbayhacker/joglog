@@ -38,7 +38,8 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Kish
  */
-@Api(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "http")
+@Api(value = "/api/users", produces = MediaType.APPLICATION_JSON_VALUE, 
+        consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "https")
 @RestController
 @RequestMapping(value = {"/api/users"}, produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController extends BaseController {
@@ -77,7 +78,7 @@ public class UserController extends BaseController {
         logger.info("create()");
 
         if (hasAnyRole(Role.MANAGER) && !Role.USER.equals(roleId)) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized operation. Manager's can only create users.");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -86,7 +87,7 @@ public class UserController extends BaseController {
             User user = userDAO.findOneByEmail(email);
 
             if (user != null) {
-                response.sendError(HttpStatus.BAD_REQUEST.value(), "Sorry, email is already taken!");
+                response.sendError(HttpStatus.BAD_REQUEST.value(), "Sorry, email is already taken! Please try another.");
                 return new ResponseEntity<>("Sorry, email is already taken!", HttpStatus.BAD_REQUEST);
             }
 
@@ -135,19 +136,39 @@ public class UserController extends BaseController {
         
         PageRequest pageRequest = null;
         
-        if (size != null && size > 0) {
-            pageRequest = new PageRequest(page, size);
-        }
-        
-        //@todo -- get only users for managers
-        
         if (value == null) {
             return userDAO.findAll(pageRequest);
         } else {
             if ("role".equals(field)) {
-                return userDAO.findByRole_id(value, pageRequest);
+                
+                if (isAuthorizedToAccessRole(value)) {
+                    if (size != null && size > 0) {
+                        pageRequest = new PageRequest(page, size);
+                    }
+
+                    return userDAO.findByRole_id(value, pageRequest);    
+                } else {
+                    //send error
+                    response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+                    return null;
+                }
+
             } else {
-                return Arrays.asList(userDAO.findOneByEmail(value));
+                User u = userDAO.findOneByEmail(value);
+                
+                if (u != null) {
+                    if (isAuthorizedToAccessRole(u.getRole().getId())) {
+                        return Arrays.asList(u);    
+                    } else {
+                        //send error
+                        response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+                        return null;
+                    }
+                } else {
+                    //@todo -- send resource not found error
+                    response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+                    return null;
+                }
             }
         }
     }
@@ -191,7 +212,7 @@ public class UserController extends BaseController {
         User u = userDAO.findOne(id);
         
         if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access. Managers can only remove users.");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
         
@@ -222,7 +243,7 @@ public class UserController extends BaseController {
         User u = userDAO.findOne(id);
         
         if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access. Managers can update only users.");
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
 
@@ -232,7 +253,7 @@ public class UserController extends BaseController {
         if (!oldEmail.equals(email)) {
             eUser = userDAO.findOneByEmail(email);
             if (eUser != null) {
-                response.sendError(HttpStatus.BAD_REQUEST.value(), "Email id is already taken. Please try another.");
+                response.sendError(HttpStatus.BAD_REQUEST.value(), "Sorry, email is already taken! Please try another.");
                 return;
             }
 

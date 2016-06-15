@@ -11,14 +11,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class BaseController {
 
-    protected static final String UNAUTHORIZED_ACCESS_MESSAGE = "Unauthorized access";
+    protected static final String UNAUTHORIZED_ACCESS_MESSAGE = "Access denied";
     protected static final String BAD_CREDENTIALS_MESSAGE = "Bad credentials";
+    protected static final String NOT_FOUND_MESSAGE = "Resource not found";
     
-    protected boolean hasAnyRole(String... roles) {
+    protected String getPrincipalRole() {
         AuthenticatedUser principal
                 = (AuthenticatedUser)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         String r = principal.getAuthorities().iterator().next().getAuthority();
+
+        return r;
+    }
+
+    protected boolean hasAnyRole(String... roles) {
+        String r = getPrincipalRole();
 
         System.out.println("user role :: " + r);
         
@@ -44,5 +51,25 @@ public class BaseController {
     
     protected boolean isUnauthorizedAccessByUser(String email) {
         return (hasAnyRole(Role.USER) && !getPrincipalEmail().equals(email));
+    }
+
+    protected boolean isAuthorizedToAccessRole(String role) {
+        boolean hasAccess = false;
+
+        switch (role) {
+            case "ROLE_USER":
+                hasAccess = hasAnyRole(Role.ADMIN, Role.MANAGER);
+                break;
+            case "ROLE_MANAGER":
+                hasAccess = hasAnyRole(Role.ADMIN);
+                break;
+            case "ROLE_ADMIN":
+                hasAccess = hasAnyRole(Role.ADMIN);
+                break;
+            default:
+                break;
+        }
+
+        return hasAccess;
     }
 }
