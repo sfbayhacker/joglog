@@ -1,0 +1,21 @@
+Application to track run times built using Spring REST APIs and AngularJS front end.
+
+The application runs on Spring boot with embedded Tomcat server. The application uses spring-data-jpa to connect to MySQL database to deliver data.
+
+The application uses JSON web token as a mechanism to authenticate in a purely stateless and secure manner.
+
+Building the application:
+
+./gradlew clean build
+
+Running the application server:
+
+java -jar build/libs/jogLog-0.1.0.jar
+
+Accessing the application:
+
+http://localhost:8443/
+
+Swagger UI for API reference:
+
+http://localhost:8443/swagger-ui.html
