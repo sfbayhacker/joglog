@@ -1,0 +1,11 @@
+Application to track run times built using Spring REST APIs and AngularJS front end.
+
+The application runs on Spring boot with embedded Tomcat server. The application uses spring-data-jpa to connect to MySQL database to deliver data.
+
+Building the application:
+
+./gradlew clean build
+
+Running the application
+
+java -jar build/libs/jogLog-0.1.0.jar
