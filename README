@@ -14,8 +14,8 @@ java -jar build/libs/jogLog-0.1.0.jar
 
 Accessing the application:
 
-http://localhost:8443/
+https://localhost:8443/
 
 Swagger UI for API reference:
 
-http://localhost:8443/swagger-ui.html
+https://localhost:8443/swagger-ui.html
