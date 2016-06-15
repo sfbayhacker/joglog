@@ -53,7 +53,7 @@ public class Application {
 
     private Predicate<String> authPaths() {
         return or(
-                regex("/api/auth.*")
+                regex("/auth.*")
         );
     }
     
@@ -70,7 +70,7 @@ public class Application {
 
     private Predicate<String> registerPaths() {
         return or(
-                regex("/api/register.*")
+                regex("/register.*")
         );
     }
     

@@ -10,19 +10,19 @@
         service.isAdmin = isAdmin;
         service.isManager = isManager;
         service.isUser = isUser;
-        
+
         return service;
-        
+
         function isAdmin() {
             console.log("LayoutService::isAdmin()");
-            
+
             if ($rootScope.globals.loggedIn) {
                 if ($rootScope.globals.currentUser.role === 'ROLE_ADMIN') {
                     console.log('returning true');
                     return true;
                 }
             }
-            
+
             return false;
         }
 
@@ -34,7 +34,7 @@
                     return true;
                 }
             }
-        
+
             return false;
         }
 
@@ -46,7 +46,7 @@
                     return true;
                 }
             }
-            
+
             return false;
         }
     }

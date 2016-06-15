@@ -5,6 +5,8 @@ import jogLog.entity.User;
 import jogLog.repository.EntryDAO;
 import jogLog.repository.UserDAO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
@@ -50,6 +52,9 @@ public class EntryController extends BaseController {
     
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Add a new entry ", response = String.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String create(
@@ -91,6 +96,9 @@ public class EntryController extends BaseController {
     
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get all entries ", response = Entry.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<Entry> getEntries(
@@ -147,6 +155,9 @@ public class EntryController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get entry ", response = Entry.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public Entry getEntry(
@@ -167,6 +178,9 @@ public class EntryController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Remove entry ", response = User.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -188,6 +202,9 @@ public class EntryController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Update entry ")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updateEntry(

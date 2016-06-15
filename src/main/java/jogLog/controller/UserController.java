@@ -7,6 +7,8 @@ import jogLog.repository.EntryDAO;
 import jogLog.repository.RoleDAO;
 import jogLog.repository.UserDAO;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
@@ -54,6 +56,9 @@ public class UserController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     @ApiOperation(value = " Creates a user ", response = String.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
@@ -111,6 +116,9 @@ public class UserController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Get users. Allows filtering based on role and email. ", response = User.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<User> getUsers(
@@ -131,6 +139,8 @@ public class UserController extends BaseController {
             pageRequest = new PageRequest(page, size);
         }
         
+        //@todo -- get only users for managers
+        
         if (value == null) {
             return userDAO.findAll(pageRequest);
         } else {
@@ -143,6 +153,9 @@ public class UserController extends BaseController {
     }
 
     @ApiOperation(value = " Get user ", response = User.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public User getUser(
@@ -163,6 +176,9 @@ public class UserController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Remove user ", response = User.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -184,6 +200,9 @@ public class UserController extends BaseController {
 
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Update user ")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+    })
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updateUser(
