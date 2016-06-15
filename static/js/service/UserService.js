@@ -72,7 +72,7 @@ function UserService($http) {
 
     function register(user, callback) {
         console.log('UserService::register()');
-        return $http({method: 'POST', url: '/api/register', 
+        return $http({method: 'POST', url: '/register', 
             headers: {email: user.email, name: user.name, password: user.password}})
                 .then(callback, handleError('Error registering user'));
     }

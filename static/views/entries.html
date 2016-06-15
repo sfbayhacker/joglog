@@ -11,14 +11,6 @@
                 <label for="toDate">To Date:</label>
                 <input type="date" placeholder="yyyy-MM-dd" name="toDate" id="toDate" class="form-control"/>
             </div>
-            <div style="float: left; padding-left: 2px; padding-right: 2px;">
-                <label for="fromTime">From Time:</label>
-                <input type="number" min="0" max="23" name="fromTime" id="fromTime" class="form-control"/>
-            </div>
-            <div style="float: left; padding-left: 2px; padding-right: 10px;">
-                <label for="toTime">To Time:</label>
-                <input type="number" min="0" max="23" name="toTime" id="toTime" class="form-control"/>
-            </div>
             <div style="float: left; padding-left: 2px; padding-right: 2px; padding-top: 25px;">
                 <input type="submit" value="Filter" class="btn btn-small btn-primary"/>
             </div>
@@ -33,6 +25,7 @@
             <th style="min-width: 80px;">Date</th>
             <th style="min-width: 80px;">Time</th>
             <th style="min-width: 80px;">Distance</th>
+            <th style="min-width: 80px;">Avg. Speed</th>
             <th ng-if="isAdmin()" style="min-width: 80px;">User</th>
             <th style="width:20px;"> </th>
             <th style="width:20px;"> </th>
@@ -44,6 +37,7 @@
             <td>{{ entry.date }}</td>
             <td>{{ entry.time }}</td>
             <td>{{ entry.distance }}</td>
+            <td>{{ entry.averageSpeed }}</td>
             <td ng-if="isAdmin()">{{ entry.user.name }}</td>
             <td><a ng-click="showEditEntryForm(entry.id)" class="btn btn-small btn-primary">Edit</a></td>
             <td><a ng-click="deleteEntry(entry.id)" class="btn btn-small btn-danger">Delete</a></td>

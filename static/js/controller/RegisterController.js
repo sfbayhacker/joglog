@@ -17,9 +17,8 @@
                 console.log('anon func :: ' + JSON.stringify(response));
                 user = response.data;
                 console.log('user :: ' + user);
-                AuthService.setCredentials(user.id, user.email, user.password, user.role.id);
-
-                $location.path('#/entries');
+                alert("You have successfully registered for JogLog!")
+                $location.path('/');
             });
 
         }

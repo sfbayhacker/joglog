@@ -2,11 +2,13 @@ package jogLog.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Date;
+import java.util.Set;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -26,23 +28,20 @@ public class User {
     private String name;
     private String salt;
     private Date createdDate;
-    private String deleted;
     
     @OneToOne
 	@JoinColumn(name = "role_id")
     private Role role;
     
-//    @OneToMany(mappedBy = "user")
-//    private Set<Entry> entries;
+    @OneToMany(mappedBy = "user", orphanRemoval = true)
+    private Set<Entry> entries;
     
     public User() {
-        this.deleted = "N";
     }
     
     /**
      * @return the id
      */
-    @JsonIgnore
     public long getId() {
         return id;
     }
@@ -111,19 +110,20 @@ public class User {
         this.role = r;
     }
 
-//    /**
-//     * @return the entries
-//     */
-//    public Set<Entry> getEntries() {
-//        return entries;
-//    }
-//
-//    /**
-//     * @param entries the entries to set
-//     */
-//    public void setEntries(Set<Entry> entries) {
-//        this.entries = entries;
-//    }
+    /**
+     * @return the entries
+     */
+    @JsonIgnore
+    public Set<Entry> getEntries() {
+        return entries;
+    }
+
+    /**
+     * @param entries the entries to set
+     */
+    public void setEntries(Set<Entry> entries) {
+        this.entries = entries;
+    }
 
     /**
      * @return the createdDate
@@ -138,21 +138,6 @@ public class User {
      */
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
-    }
-
-    /**
-     * @return the deleted
-     */
-    @JsonIgnore
-    public String getDeleted() {
-        return deleted;
-    }
-
-    /**
-     * @param deleted the deleted to set
-     */
-    public void setDeleted(String deleted) {
-        this.deleted = deleted;
     }
 
     /**

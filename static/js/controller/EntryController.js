@@ -45,8 +45,7 @@
         function filterEntries() {
             console.log("EntryController::filterEntries()");
             
-            if (fromDate.value === '' && toDate.value === '' 
-                    && fromTime.value === '' && toTime.value === '') {
+            if (fromDate.value === '' && toDate.value === '') {
                 $window.alert('Please enter criteria to filter.');
                 return;
             }
@@ -59,24 +58,14 @@
                 return;
             }
             
-            var fd=null,td=null,ft=-1,tt=-1;
+            var fd=null,td=null;
             
             if ( fromDate.value !== '' && toDate.value !== '' ) {
                 fd = fromDate.value;
                 td = toDate.value;
             }
             
-            if ( fromTime.value >= 0 && toTime.value >= 0 ) {
-                ft = fromTime.value;
-                tt = toTime.value;
-            }
-
-            if (ft > tt) {
-                $window.alert('From time cannot be greater than to time for filtering');
-                return;
-            }
-            
-            EntryService.getEntries(fd, td, ft, tt, 0, 0, function (response) {
+            EntryService.getEntries(fd, td, 0, 0, function (response) {
                 $scope.entries = response.data;
             });
         }
@@ -105,6 +94,7 @@
             if ($scope.isAdmin()) {
                 user = userId.value;
             } else {
+                console.log($rootScope.globals.currentUser);
                 user = $rootScope.globals.currentUser.id;
             }
             

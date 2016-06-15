@@ -1,5 +1,6 @@
 package jogLog.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jogLog.config.JsonDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Date;
@@ -29,7 +30,6 @@ public class Entry {
     private int time;
     private float distance;
     private Date createdDate;
-    private String deleted;
     
     @ManyToOne
 	@JoinColumn(name = "user_id")
@@ -118,22 +118,8 @@ public class Entry {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-
-    /**
-     * @return the deleted
-     */
-    public String getDeleted() {
-        return deleted;
-    }
-
-    /**
-     * @param deleted the deleted to set
-     */
-    public void setDeleted(String deleted) {
-        this.deleted = deleted;
-    }
     
-    public float getAverageSpeed() {
-        return (distance / (time/60) );
+    public String getAverageSpeed() {
+        return String.format("%.2f", ( distance * 60 / time ));
     }
 }

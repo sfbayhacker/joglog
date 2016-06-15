@@ -42,7 +42,7 @@ public class WebSecurityAuthConfig extends GlobalAuthenticationConfigurerAdapter
                 User user = userDAO.findOneByEmail(username);
                 
                 if (user != null) {
-                    return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), user.getDeleted().equals("N"), true, true, true,
+                    return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), true, true, true, true,
                             AuthorityUtils.createAuthorityList(user.getRole().getId()));
                 } else {
                     throw new UsernameNotFoundException("could not find the user '"

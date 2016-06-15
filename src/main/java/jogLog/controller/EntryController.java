@@ -79,7 +79,6 @@ public class EntryController extends BaseController {
             entry.setTime(time);
             entry.setDistance(distance);
             entry.setUser(u);
-            entry.setDeleted("N");
             
             entryDAO.save(entry);
         } catch (Exception ex) {

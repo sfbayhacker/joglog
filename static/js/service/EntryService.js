@@ -37,18 +37,17 @@ function EntryService($http, $rootScope) {
                 .then(callback, handleError('Error getting all entries'));
     }
 
-    function getEntries(fromDate, toDate, fromTime, toTime, page, size, callback) {
+    function getEntries(fromDate, toDate, page, size, callback) {
         console.log('EntryService::getEntries()');
         
         if (fromDate === null || toDate === null) {
             return $http({method: 'GET', url: '/api/entries', 
-                headers: {user: $rootScope.globals.currentUser.id, page: page, size: size, 
-                    fromTime: fromTime, toTime: toTime}})
+                headers: {user: $rootScope.globals.currentUser.id, page: page, size: size}})
                         .then(callback, handleError('Error getting filtered entries'));
         } else {
             return $http({method: 'GET', url: '/api/entries', 
                 headers: {user: $rootScope.globals.currentUser.id, page: page, size: size, 
-                    fromDate: fromDate, toDate: toDate, fromTime: fromTime, toTime: toTime}})
+                    fromDate: fromDate, toDate: toDate}})
                         .then(callback, handleError('Error getting filtered entries'));
         }
     }

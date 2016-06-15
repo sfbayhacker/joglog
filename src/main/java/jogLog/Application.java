@@ -64,7 +64,7 @@ public class Application {
                 .groupName("register-api")
                 .apiInfo(apiInfo())
                 .select()
-                .paths(authPaths())
+                .paths(registerPaths())
                 .build();
     }
 
