@@ -14,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import jogLog.entity.Role;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,32 +48,28 @@ public class EntryController extends BaseController {
     @Autowired
     private UserDAO userDAO;
     
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Add a new entry ", response = String.class)
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public String create(
             @ApiParam(name = "user", value = "User id", required = true)
             @RequestHeader("user") Long userId,
-            @ApiParam(name = "date", value = "Entry date", required = true)
-            @RequestHeader("date") String date,
+            @ApiParam(name = "entryDate", value = "Entry date", required = true)
+            @RequestHeader("entryDate") String date,
             @ApiParam(name = "time", value = "Entry time", required = true)
             @RequestHeader("time") Integer time,
             @ApiParam(name = "distance", value = "Distance covered", required = true)
-            @RequestHeader("distance") Integer distance,
+            @RequestHeader("distance") Float distance,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         
-        logger.debug("create()");
-
-        if (!hasAnyRole("ADMIN", "USER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return null;
-        }
+        logger.info("create()");
         
         User u = userDAO.findOne(userId);
         
-        if (hasAnyRole("USER") && !getPrincipalEmail().equals(u.getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if (isUnauthorizedAccessByUser(u.getEmail())) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
             return null;
         }
         
@@ -92,6 +90,7 @@ public class EntryController extends BaseController {
         return "Entry successfully added!";
     }
     
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get all entries ", response = Entry.class)
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -104,22 +103,12 @@ public class EntryController extends BaseController {
             @ApiParam(name = "toDate", value = "Entry to date", required = false)
             @RequestHeader(name = "toDate", required = false) @DateTimeFormat(pattern="yyyy-MM-dd") Date toDate,
             
-            @ApiParam(name = "fromTime", value = "Entry from time", required = false, defaultValue="-1")
-            @RequestHeader(name = "fromTime", required = false, defaultValue = "-1") int fromTime,
-            @ApiParam(name = "toDate", value = "Entry to date", required = false, defaultValue="-1")
-            @RequestHeader(name = "toTime", required = false, defaultValue = "-1") int toTime,
-            
             @ApiParam(name = "page", value = "The page number", required = false, defaultValue="0")
             @RequestHeader(name = "page", required = false, defaultValue = "0") int page, 
             @ApiParam(name = "size", value = "The page size", required = false, defaultValue="0")
             @RequestHeader(name = "size", required = false, defaultValue = "0") int size,
             HttpServletResponse response) throws IOException {
-        logger.debug("getEntries()");
-        
-        if (!hasAnyRole("ADMIN", "USER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return null;
-        }
+        logger.info("getEntries()");
         
         PageRequest pageRequest = null;
         
@@ -128,46 +117,36 @@ public class EntryController extends BaseController {
         }
         
         boolean dateFilter = (fromDate != null && toDate != null);
-        boolean timeFilter = (fromTime != -1 && toTime != -1);
         
         User user = userDAO.findOne(userId);
-        boolean userFilter = (!"ADMIN".equals(user.getRole().getId()));
         
-        if (dateFilter && timeFilter) {
+        boolean userFilter = hasAnyRole(Role.USER);
+        
+        if (isUnauthorizedAccessByUser(user.getEmail())) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+            return null;
+        }
+        
+        if (dateFilter) {
             if (userFilter) {
-                logger.debug("D=1 T=1 U=1");
-                return entryDAO.findByDateBetweenAndTimeBetweenAndUser_id(fromDate, toDate, fromTime, toTime, userId, pageRequest);
-            } else {
-                logger.debug("D=1 T=1 U=0");
-                return entryDAO.findByDateBetweenAndTimeBetween(fromDate, toDate, fromTime, toTime, pageRequest);
-            }
-        } else if (dateFilter) {
-            if (userFilter) {
-                logger.debug("D=1 T=0 U=1");
+                logger.info("D=1 U=1");
                 return entryDAO.findByDateBetweenAndUser_id(fromDate, toDate, userId, pageRequest);
             } else {
-                logger.debug("D=1 T=0 U=0");
+                logger.info("D=1 U=0");
                 return entryDAO.findByDateBetween(fromDate, toDate, pageRequest);
-            }
-        } else if (timeFilter) {
-            if (userFilter) {
-                logger.debug("D=0 T=1 U=1");
-                return entryDAO.findByTimeBetweenAndUser_id(fromTime, toTime, userId, pageRequest);
-            } else {
-                logger.debug("D=0 T=1 U=0");
-                return entryDAO.findByTimeBetween(fromTime, toTime, pageRequest);
             }
         }
         
         if (userFilter) {
-            logger.debug("D=0 T=0 U=1");
+            logger.info("D=0 U=1");
             return entryDAO.findByUser_id(userId, pageRequest);
         } else {
-            logger.debug("D=0 T=0 U=0");
+            logger.info("D=0 U=0");
             return entryDAO.findAll(pageRequest);
         }
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get entry ", response = Entry.class)
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -175,23 +154,19 @@ public class EntryController extends BaseController {
             @ApiParam(name = "id", value = "Entry id", required = true)
             @PathVariable(value="id") Long id,
             HttpServletResponse response) throws IOException {
-        logger.debug("getEntry()");
-        
-        if (!hasAnyRole("ADMIN", "USER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return null;
-        }
+        logger.info("getEntry()");
         
         Entry entry = entryDAO.findOne(id);
         
-        if (!hasAnyRole("ADMIN") && !getPrincipalEmail().equals(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if (isUnauthorizedAccessByUser(entry.getUser().getEmail())) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
             return null;
         }
         
         return entry;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Remove entry ", response = User.class)
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -200,48 +175,39 @@ public class EntryController extends BaseController {
             @ApiParam(name = "id", value = "Entry id", required = true)
             @PathVariable(value="id") Long id,
             HttpServletResponse response) throws IOException {
-        logger.debug("removeEntry()");
-        
-        if (!hasAnyRole("ADMIN", "USER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return;
-        }
+        logger.info("removeEntry()");
         
         Entry entry = entryDAO.findOne(id);
         
-        if (!hasAnyRole("ADMIN") && !getPrincipalEmail().equals(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if (hasAnyRole(Role.USER) && !getPrincipalEmail().equals(entry.getUser().getEmail())) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
             return;
         }
         
         entryDAO.delete(id);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Update entry ")
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public void updateEntry(
             @ApiParam(name = "id", value = "Entry id", required = true)
             @RequestHeader("id") Long id,
-            @ApiParam(name = "date", value = "Entry date", required = true)
-            @RequestHeader("date") String date,
+            @ApiParam(name = "entryDate", value = "Entry date", required = true)
+            @RequestHeader("entryDate") String date,
             @ApiParam(name = "time", value = "Entry time", required = true)
             @RequestHeader("time") Integer time,
             @ApiParam(name = "distance", value = "Distance covered", required = true)
-            @RequestHeader("distance") Integer distance,
+            @RequestHeader("distance") Float distance,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
-        logger.debug("updateEntry()");
-        
-        if (!hasAnyRole("ADMIN", "USER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
-            return;
-        }
+        logger.info("updateEntry()");
         
         Entry entry = entryDAO.findOne(id);
         
-        if (!hasAnyRole("ADMIN") && !getPrincipalEmail().equals(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if (isUnauthorizedAccessByUser(entry.getUser().getEmail())) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
             return;
         }
         

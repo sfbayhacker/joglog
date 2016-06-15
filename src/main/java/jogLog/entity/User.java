@@ -71,6 +71,7 @@ public class User {
     /**
      * @return the password
      */
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

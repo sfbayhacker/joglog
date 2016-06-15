@@ -27,7 +27,7 @@ public class Entry {
     private Date date;
     
     private int time;
-    private int distance;
+    private float distance;
     private Date createdDate;
     private String deleted;
     
@@ -80,14 +80,14 @@ public class Entry {
     /**
      * @return the distance
      */
-    public int getDistance() {
+    public float getDistance() {
         return distance;
     }
 
     /**
      * @param distance the distance to set
      */
-    public void setDistance(int distance) {
+    public void setDistance(float distance) {
         this.distance = distance;
     }
 
@@ -133,5 +133,7 @@ public class Entry {
         this.deleted = deleted;
     }
     
-
+    public float getAverageSpeed() {
+        return (distance / (time/60) );
+    }
 }

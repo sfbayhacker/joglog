@@ -26,6 +26,7 @@ CREATE TABLE `entries` (
 	`id` int NOT NULL AUTO_INCREMENT,
 	`date` date NOT NULL,
 	`time` int NOT NULL,
+	`distance` DECIMAL(10,2) NOT NULL,
 	`user_id` int NOT NULL,
 	`created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`deleted` char(1) NOT NULL DEFAULT 'N',

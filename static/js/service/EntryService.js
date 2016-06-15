@@ -63,7 +63,7 @@ function EntryService($http, $rootScope) {
         console.log('EntryService::create()');
         console.log('entry :: ' + JSON.stringify(entry));
         return $http({method: 'POST', url: '/api/entries', 
-            headers: {date: entry.date, time: entry.time, distance: entry.distance, user: entry.user}})
+            headers: {entryDate: entry.date, time: entry.time, distance: entry.distance, user: entry.user}})
                 .then(callback, handleError('Error creating entry'));
     }
 
@@ -71,7 +71,7 @@ function EntryService($http, $rootScope) {
         console.log('EntryService::update()');
         console.log('entry :: ' + JSON.stringify(entry));
         return $http({method: 'PUT', url: '/api/entries/', 
-            headers: {id: entry.id, date: entry.date, time: entry.time, distance: entry.distance}})
+            headers: {id: entry.id, entryDate: entry.date, time: entry.time, distance: entry.distance}})
                 .then(callback, handleError('Error updating entry'));
     }
 

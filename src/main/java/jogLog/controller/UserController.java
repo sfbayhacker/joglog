@@ -69,10 +69,10 @@ public class UserController extends BaseController {
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
 
-        logger.debug("create()");
+        logger.info("create()");
 
-        if (!Role.USER.equals(roleId) && !hasAnyRole("ROLE_ADMIN")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if (hasAnyRole(Role.MANAGER) && !Role.USER.equals(roleId)) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized operation. Manager's can only create users.");
             return null;
         }
         
@@ -123,7 +123,7 @@ public class UserController extends BaseController {
             @ApiParam(name = "size", value = "The page size", required = false, defaultValue = "0")
             @RequestHeader(name = "size", required = false) Integer size,
             HttpServletResponse response) throws IOException {
-        logger.debug("getUsers(" + field + "," + value + ")");
+        logger.info("getUsers(" + field + "," + value + ")");
         
         PageRequest pageRequest = null;
         
@@ -149,20 +149,19 @@ public class UserController extends BaseController {
             @ApiParam(name = "id", value = "User id", required = true)
             @PathVariable(value = "id") Long id,
             HttpServletResponse response) throws IOException {
-        logger.debug("getUser()");
+        logger.info("getUser()");
 
         User u = userDAO.findOne(id);
-        
-        boolean sameUser = getPrincipalEmail().equals(u.getEmail());
-        
-        if (!sameUser && !hasAnyRole("ADMIN", "MANAGER")) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+
+        if ( !isManagerOfUsers() && !isAuthenticatedUser(u.getEmail()) ) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
         return u;
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Remove user ", response = User.class)
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -171,20 +170,19 @@ public class UserController extends BaseController {
             @ApiParam(name = "id", value = "User id", required = true)
             @PathVariable(value = "id") Long id,
             HttpServletResponse response) throws IOException {
-        logger.debug("removeUser()");
+        logger.info("removeUser()");
 
         User u = userDAO.findOne(id);
         
-        if (!hasAnyRole("ADMIN", "MANAGER") || 
-                (!Role.USER.equals(u.getRole().getId()) && !hasAnyRole("ADMIN"))
-            ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access. Managers can only remove users.");
             return;
         }
         
         userDAO.delete(id);
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Update user ")
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -200,14 +198,12 @@ public class UserController extends BaseController {
             @ApiParam(name = "role", value = "User role", required = true, defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
             @RequestHeader("role") String roleId,
             HttpServletResponse response) throws IOException {
-        logger.debug("updateUser()");
+        logger.info("updateUser()");
 
         User u = userDAO.findOne(id);
         
-        if (!hasAnyRole("ADMIN", "MANAGER") || 
-                (!Role.USER.equals(u.getRole().getId()) && !hasAnyRole("ADMIN"))
-            ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Bad Credentials");
+        if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
+            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access. Managers can update only users.");
             return;
         }
 

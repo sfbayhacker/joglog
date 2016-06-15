@@ -31,7 +31,7 @@ function UserService($http) {
 
     function getAllUsers(page, size, callback) {
         console.log('UserService::getAllUsers()');
-        return $http({method: 'GET', url: '/api/users', params: {field: 'role', value: 'USER'}, 
+        return $http({method: 'GET', url: '/api/users', params: {field: 'role', value: 'ROLE_USER'}, 
             headers: {page: page, size: size}})
                 .then(callback, handleError('Error getting all users'));
     }
@@ -72,7 +72,7 @@ function UserService($http) {
 
     function register(user, callback) {
         console.log('UserService::register()');
-        return $http({method: 'POST', url: '/api/registration', 
+        return $http({method: 'POST', url: '/api/register', 
             headers: {email: user.email, name: user.name, password: user.password}})
                 .then(callback, handleError('Error registering user'));
     }

@@ -94,7 +94,7 @@
 
         function createUser() {
             console.log('UserController::createUser()');
-            var role = 'USER'
+            var role = 'ROLE_USER'
             if (typeof srole !== 'undefined') {
                 role =  srole.options[srole.selectedIndex].value;
             }
@@ -111,7 +111,7 @@
             console.log('UserController::editUser()');
             
             console.log('user id :: ' + uid.value);
-            var role = 'USER'
+            var role = 'ROLE_USER'
             if (typeof srole !== 'undefined') {
                 role =  srole.options[srole.selectedIndex].value;
             }

@@ -8,7 +8,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.Calendar;
-import java.util.Date;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.Charsets;
 import org.apache.log4j.Logger;
@@ -47,7 +46,7 @@ public class RegistrationController {
             @RequestHeader("password") String password,
             HttpServletResponse response) {
         
-        logger.debug("create()");
+        logger.info("create()");
  
         User user = null;
         try {
@@ -73,7 +72,7 @@ public class RegistrationController {
             System.out.println("hashString :: " + (password + salt));    
             
             user.setPassword(hashed);
-            user.setRole(new Role("ROLE_USER"));
+            user.setRole(new Role(Role.USER));
             user.setSalt(""+salt);
             
             user = userDAO.save(user);

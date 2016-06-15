@@ -108,6 +108,8 @@
                 user = $rootScope.globals.currentUser.id;
             }
             
+            console.log('user :: ' + user);
+            
             var entry = {date: date.value, time: time.value, 
                 distance: distance.value, user: user};
             

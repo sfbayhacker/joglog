@@ -22,8 +22,8 @@ var isAdminOrUser = function ($location, $rootScope, $q) {
     var deferred = $q.defer();
 
     if ( $rootScope.globals.loggedIn && 
-        ($rootScope.globals.currentUser.role === 'USER' ||
-        $rootScope.globals.currentUser.role === 'ADMIN')) {
+        ($rootScope.globals.currentUser.role === 'ROLE_USER' ||
+        $rootScope.globals.currentUser.role === 'ROLE_ADMIN')) {
         deferred.resolve();
     } else {
         deferred.reject();
@@ -36,8 +36,8 @@ var isAdminOrManager = function ($location, $rootScope, $q) {
     var deferred = $q.defer();
 
     if ( $rootScope.globals.loggedIn && 
-        ($rootScope.globals.currentUser.role === 'ADMIN' ||
-        $rootScope.globals.currentUser.role === 'MANAGER')) {
+        ($rootScope.globals.currentUser.role === 'ROLE_ADMIN' ||
+        $rootScope.globals.currentUser.role === 'ROLE_MANAGER')) {
         deferred.resolve();
     } else {
         deferred.reject();
@@ -50,7 +50,7 @@ var isUser = function ($location, $rootScope, $q) {
     var deferred = $q.defer();
 
     if ( $rootScope.globals.loggedIn && 
-        $rootScope.globals.currentUser.role === 'USER') {
+        $rootScope.globals.currentUser.role === 'ROLE_USER') {
         deferred.resolve();
     } else {
         deferred.reject();

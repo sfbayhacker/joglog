@@ -20,10 +20,9 @@
             console.log("LoginController::login()");
             AuthService.login(email.value, password.value, function (response) {
                 console.log("authService.login() response :: " + response);
-                console.log("response.success :: " + response.success);
-                if (response.success) {
+                if (response) {
                     AuthService.setCredentials(response.user.id, email.value, 
-                        password.value, response.user.role.id);
+                        response.user.role.id, response.token);
                     
                     var path = HomePageService.getHomePath();
                     console.log('path :: ' + path);

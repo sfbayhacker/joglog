@@ -27,7 +27,7 @@ public class WebSecurityAuthConfig extends GlobalAuthenticationConfigurerAdapter
 
     @Override
     public void init(AuthenticationManagerBuilder auth) throws Exception {
-        logger.debug("init("+auth+")");
+        logger.info("init("+auth+")");
         auth.userDetailsService(userDetailsService());
     }
 
@@ -37,7 +37,7 @@ public class WebSecurityAuthConfig extends GlobalAuthenticationConfigurerAdapter
 
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                logger.debug("loadUserByUsername("+username+")");
+                logger.info("loadUserByUsername("+username+")");
                 
                 User user = userDAO.findOneByEmail(username);
                 

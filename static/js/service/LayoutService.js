@@ -17,7 +17,7 @@
             console.log("LayoutService::isAdmin()");
             
             if ($rootScope.globals.loggedIn) {
-                if ($rootScope.globals.currentUser.role === 'ADMIN') {
+                if ($rootScope.globals.currentUser.role === 'ROLE_ADMIN') {
                     console.log('returning true');
                     return true;
                 }
@@ -29,7 +29,7 @@
         function isManager() {
             console.log("LayoutService::isManager()");
             if ($rootScope.globals.loggedIn) {
-                if ($rootScope.globals.currentUser.role === 'MANAGER') {
+                if ($rootScope.globals.currentUser.role === 'ROLE_MANAGER') {
                     console.log('returning true');
                     return true;
                 }
@@ -41,7 +41,7 @@
         function isUser() {
             console.log("LayoutService::isUser()");
             if ($rootScope.globals.loggedIn) {
-                if ($rootScope.globals.currentUser.role === 'USER') {
+                if ($rootScope.globals.currentUser.role === 'ROLE_USER') {
                     console.log('returning true');
                     return true;
                 }

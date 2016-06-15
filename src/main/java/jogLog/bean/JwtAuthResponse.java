@@ -1,5 +1,7 @@
 package jogLog.bean;
 
+import jogLog.entity.User;
+
 /**
  *
  * @author Kish
@@ -7,11 +9,17 @@ package jogLog.bean;
 public class JwtAuthResponse {
 
     private final String token;
+    private final User user;
 
-    public JwtAuthResponse(String token) {
+    public JwtAuthResponse(User user, String token) {
+        this.user = user;
         this.token = token;
     }
 
+    public User getUser() {
+        return this.user;
+    }
+    
     public String getToken() {
         return this.token;
     }

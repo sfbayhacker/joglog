@@ -20,7 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        logger.debug("configure("+http+")");
+        logger.info("configure("+http+")");
         http.authorizeRequests().
                 antMatchers("/api/auth/*").permitAll().
                 antMatchers("/api/register/*").permitAll().
