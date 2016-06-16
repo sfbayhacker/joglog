@@ -1,20 +1,24 @@
 <div ng-controller="EntryController">
     <h2>Weekly Report</h2>
     <hr/>
-    <div style="float: top; width: 100%;">
-        <form ng-submit="getWeeklySummary()">
-            <div style="padding-top: 10px; padding-bottom: 10px; float: top;">
-                <div style="float: left; padding-left: 2px; padding-right: 2px;">
-                    <label for="weekStartDate">Date:</label>
-                    <input type="date" placeholder="yyyy-MM-dd" name="weekStartDate" id="weekStartDate" class="form-control"/>
-                </div>
-                <div style="float: left; padding-left: 2px; padding-right: 2px; padding-top: 25px;">
-                    <input type="submit" value="Submit" class="btn btn-small btn-primary"/>
-                </div>
+    <form ng-submit="getWeeklySummary()">
+        <div style="padding-top: 10px; padding-bottom: 10px; float: top; width: fit-content">
+            <div style="float: left; padding-left: 2px; padding-right: 2px;">
+                <label for="weekStartDate">Date:</label>
+                <input type="date" placeholder="yyyy-MM-dd" name="weekStartDate" id="weekStartDate" class="form-control"/>
             </div>
-        </form>
-    </div>
-    <div style="float: top;">
+            <div style="float: left; padding-left: 2px; padding-right: 2px; padding-top: 25px;">
+                <input type="submit" value="Submit" class="btn btn-small btn-primary"/>
+            </div>
+        </div>
+    </form>
+    <br/><br/>
+    <table style="width: 100%; margin-top: 20px;">
+        <tr><td style="width: 20%;"><b>Week Start Date: </b></td><td>{{ summary.weekStartDate}}</td></tr>
+        <tr><td><b>Total Distance: </b></td><td>{{ summary.totalDistance}}</td></tr>
+        <tr><td><b>Avg. Speed: </b></td><td>{{ summary.averageSpeed}}</td></tr>
+    </table>
+    <!--div style="float: top;">
         <div>
             <label>Week Start Date</label>
             <label>{{ summary.weekStartDate}}</label>
@@ -27,5 +31,5 @@
             <label>Avg. Speed</label>
             <label>{{ summary.averageSpeed}}</label>
         </div>
-    </div>
+    </div-->
 </div>
