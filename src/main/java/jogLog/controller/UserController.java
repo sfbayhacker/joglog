@@ -253,7 +253,7 @@ public class UserController extends BaseController {
             @ApiParam(name = "password", value = "User password", required = true)
             @RequestHeader("password") String password,
             @ApiParam(name = "role", value = "User role", required = true, 
-                    defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
+                    defaultValue = "ROLE_USER", allowableValues = "ROLE_ADMIN, ROLE_MANAGER, ROLE_USER")
             @RequestHeader("role") String roleId,
             HttpServletResponse response) throws IOException {
         logger.info("updateUser()");
