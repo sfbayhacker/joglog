@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
         consumes = MediaType.APPLICATION_JSON_VALUE, protocols = "https")
 @RestController
 @RequestMapping(value = {"/register"}, produces = MediaType.APPLICATION_JSON_VALUE)
-public class RegistrationController {
+public class RegistrationController extends BaseController {
 
     private static final Logger logger = Logger.getLogger(RegistrationController.class);
     
@@ -56,7 +56,7 @@ public class RegistrationController {
             
             if (user!=null) {
                 response.sendError(HttpStatus.BAD_REQUEST.value(), 
-                        "Sorry, email is already taken. Please try again!");
+                        EMAIL_TAKEN);
                 return null;
             }
             

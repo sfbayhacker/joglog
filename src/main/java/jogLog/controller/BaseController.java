@@ -1,6 +1,8 @@
 package jogLog.controller;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import jogLog.entity.Role;
 import jogLog.security.AuthenticatedUser;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +16,8 @@ public class BaseController {
     protected static final String UNAUTHORIZED_ACCESS_MESSAGE = "Access denied";
     protected static final String BAD_CREDENTIALS_MESSAGE = "Bad credentials";
     protected static final String NOT_FOUND_MESSAGE = "Resource not found";
+    protected static final String EMAIL_TAKEN = "Sorry, email is already taken! Please try another";
+    protected static final String BAD_REQUEST_MESSAGE = "Illegal parameters";
     
     protected String getPrincipalRole() {
         AuthenticatedUser principal
@@ -71,5 +75,25 @@ public class BaseController {
         }
 
         return hasAccess;
+    }
+    
+    protected Set<String> getAllowedRolesForUserAccess() {
+        String r = getPrincipalRole();
+        
+        Set<String> roles = new HashSet<>();
+        
+        switch (r) {
+            case "ROLE_MANAGER":
+                roles.add(Role.USER);
+                break;
+            case "ROLE_ADMIN":
+                roles.add(Role.MANAGER);
+                roles.add(Role.ADMIN);
+                break;
+            default:
+                break;
+        }
+        
+        return roles;
     }
 }

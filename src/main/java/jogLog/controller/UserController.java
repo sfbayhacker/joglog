@@ -58,7 +58,8 @@ public class UserController extends BaseController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')")
     @ApiOperation(value = " Creates a user ", response = String.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -70,7 +71,8 @@ public class UserController extends BaseController {
             @RequestHeader("name") String name,
             @ApiParam(name = "password", value = "User password", required = true)
             @RequestHeader("password") String password,
-            @ApiParam(name = "role", value = "User role", required = true, defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
+            @ApiParam(name = "role", value = "User role", required = true, 
+                    defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
             @RequestHeader("role") String roleId,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -78,7 +80,7 @@ public class UserController extends BaseController {
         logger.info("create()");
 
         if (hasAnyRole(Role.MANAGER) && !Role.USER.equals(roleId)) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -87,8 +89,7 @@ public class UserController extends BaseController {
             User user = userDAO.findOneByEmail(email);
 
             if (user != null) {
-                response.sendError(HttpStatus.BAD_REQUEST.value(), "Sorry, email is already taken! Please try another.");
-                return new ResponseEntity<>("Sorry, email is already taken!", HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body(EMAIL_TAKEN);
             }
 
             user = new User();
@@ -109,7 +110,8 @@ public class UserController extends BaseController {
 
             userDAO.save(user);
         } catch (Exception ex) {
-            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Oops! There was an error creating the user. Please try again later!");
+            response.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), 
+                    "Oops! There was an error creating the user. Please try again later!");
             return new ResponseEntity<>("Error creating the user: " + ex.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>("User succesfully created!", HttpStatus.CREATED);
@@ -118,12 +120,14 @@ public class UserController extends BaseController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Get users. Allows filtering based on role and email. ", response = User.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public List<User> getUsers(
-            @ApiParam(name = "field", value = "The filter field", required = false, defaultValue = "role", allowableValues = "role, email")
+            @ApiParam(name = "field", value = "The filter field", required = false, 
+                    defaultValue = "role", allowableValues = "role, email")
             @RequestParam(name = "field", required = false) String field,
             @ApiParam(name = "value", value = "The field value", required = false)
             @RequestParam(name = "value", required = false) String value,
@@ -135,21 +139,21 @@ public class UserController extends BaseController {
         logger.info("getUsers(" + field + "," + value + ")");
         
         PageRequest pageRequest = null;
+
+        if (size != null && size > 0) {
+            pageRequest = new PageRequest(page, size);
+        }
         
         if (value == null) {
-            return userDAO.findAll(pageRequest);
+            return userDAO.findByRole_idIn(getAllowedRolesForUserAccess(), pageRequest);
         } else {
-            if ("role".equals(field)) {
+            if ("role".equals(field)) {  
                 
                 if (isAuthorizedToAccessRole(value)) {
-                    if (size != null && size > 0) {
-                        pageRequest = new PageRequest(page, size);
-                    }
-
                     return userDAO.findByRole_id(value, pageRequest);    
                 } else {
                     //send error
-                    response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+                    response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
                     return null;
                 }
 
@@ -161,7 +165,7 @@ public class UserController extends BaseController {
                         return Arrays.asList(u);    
                     } else {
                         //send error
-                        response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+                        response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
                         return null;
                     }
                 } else {
@@ -175,7 +179,8 @@ public class UserController extends BaseController {
 
     @ApiOperation(value = " Get user ", response = User.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -187,8 +192,13 @@ public class UserController extends BaseController {
 
         User u = userDAO.findOne(id);
 
+        if (u == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return null;
+        }
+        
         if ( !isManagerOfUsers() && !isAuthenticatedUser(u.getEmail()) ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -198,7 +208,8 @@ public class UserController extends BaseController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Remove user ", response = User.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -211,8 +222,13 @@ public class UserController extends BaseController {
 
         User u = userDAO.findOne(id);
         
+        if (u == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return;
+        }
+        
         if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
         
@@ -222,7 +238,8 @@ public class UserController extends BaseController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')")
     @ApiOperation(value = " Update user ")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -235,15 +252,21 @@ public class UserController extends BaseController {
             @RequestHeader("name") String name,
             @ApiParam(name = "password", value = "User password", required = true)
             @RequestHeader("password") String password,
-            @ApiParam(name = "role", value = "User role", required = true, defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
+            @ApiParam(name = "role", value = "User role", required = true, 
+                    defaultValue = "USER", allowableValues = "ADMIN, MANAGER, USER")
             @RequestHeader("role") String roleId,
             HttpServletResponse response) throws IOException {
         logger.info("updateUser()");
 
         User u = userDAO.findOne(id);
         
+        if (u == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return;
+        }
+        
         if ( hasAnyRole(Role.MANAGER) && !Role.USER.equals(u.getRole().getId()) ) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), UNAUTHORIZED_ACCESS_MESSAGE);
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
 
@@ -253,7 +276,8 @@ public class UserController extends BaseController {
         if (!oldEmail.equals(email)) {
             eUser = userDAO.findOneByEmail(email);
             if (eUser != null) {
-                response.sendError(HttpStatus.BAD_REQUEST.value(), "Sorry, email is already taken! Please try another.");
+                response.sendError(HttpStatus.BAD_REQUEST.value(), 
+                        EMAIL_TAKEN);
                 return;
             }
 

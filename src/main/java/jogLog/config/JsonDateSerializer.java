@@ -16,13 +16,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class JsonDateSerializer extends JsonSerializer<Date> {
 
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     @Override
     public void serialize(Date date, JsonGenerator gen, SerializerProvider provider)
             throws IOException, JsonProcessingException {
 
-        String formattedDate = dateFormat.format(date);
+        String formattedDate = DATE_FORMAT.format(date);
 
         gen.writeString(formattedDate);
     }

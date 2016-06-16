@@ -10,12 +10,17 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import jogLog.bean.WeeklySummary;
+import jogLog.config.JsonDateSerializer;
 import jogLog.entity.Role;
 
 import org.apache.log4j.Logger;
@@ -24,11 +29,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,14 +58,18 @@ public class EntryController extends BaseController {
     @Autowired
     private UserDAO userDAO;
     
+    @Autowired
+    EntityManagerFactory em;
+    
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Add a new entry ", response = String.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String create(
+    public ResponseEntity<String> create(
             @ApiParam(name = "user", value = "User id", required = true)
             @RequestHeader("user") Long userId,
             @ApiParam(name = "entryDate", value = "Entry date", required = true)
@@ -74,8 +85,13 @@ public class EntryController extends BaseController {
         
         User u = userDAO.findOne(userId);
         
+        if (u == null) {
+            response.sendError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MESSAGE);
+            return null;
+        }
+        
         if (isUnauthorizedAccessByUser(u.getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -88,17 +104,18 @@ public class EntryController extends BaseController {
             
             entryDAO.save(entry);
         } catch (Exception ex) {
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-            return "Error adding the entry: " + ex.toString();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error adding the entry: " + ex.toString()) ;
         }
         
-        return "Entry successfully added!";
+        return ResponseEntity.ok("Entry successfully added!");
     }
     
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get all entries ", response = Entry.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -130,8 +147,8 @@ public class EntryController extends BaseController {
         
         boolean userFilter = hasAnyRole(Role.USER);
         
-        if (isUnauthorizedAccessByUser(user.getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+        if (user == null || isUnauthorizedAccessByUser(user.getEmail())) {
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -157,7 +174,8 @@ public class EntryController extends BaseController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @ApiOperation(value = " Get entry ", response = Entry.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -169,8 +187,13 @@ public class EntryController extends BaseController {
         
         Entry entry = entryDAO.findOne(id);
         
+        if (entry == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return null;
+        }
+        
         if (isUnauthorizedAccessByUser(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return null;
         }
         
@@ -178,9 +201,10 @@ public class EntryController extends BaseController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @ApiOperation(value = " Remove entry ", response = User.class)
+    @ApiOperation(value = " Remove entry ", response = Void.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -193,8 +217,13 @@ public class EntryController extends BaseController {
         
         Entry entry = entryDAO.findOne(id);
         
-        if (hasAnyRole(Role.USER) && !getPrincipalEmail().equals(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+        if (entry == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return;
+        }
+        
+        if (isUnauthorizedAccessByUser(entry.getUser().getEmail())) {
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
         
@@ -202,9 +231,10 @@ public class EntryController extends BaseController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @ApiOperation(value = " Update entry ")
+    @ApiOperation(value = " Update entry ", response = Void.class)
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "Authorization", value = "Authorization token", required = true, dataType = "string", paramType = "header")
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
     })
     @RequestMapping(method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
@@ -223,8 +253,13 @@ public class EntryController extends BaseController {
         
         Entry entry = entryDAO.findOne(id);
         
+        if (entry == null) {
+            response.sendError(HttpStatus.NOT_FOUND.value(), NOT_FOUND_MESSAGE);
+            return;
+        }
+        
         if (isUnauthorizedAccessByUser(entry.getUser().getEmail())) {
-            response.sendError(HttpStatus.UNAUTHORIZED.value(), "Unauthorized access");
+            response.sendError(HttpStatus.FORBIDDEN.value(), UNAUTHORIZED_ACCESS_MESSAGE);
             return;
         }
         
@@ -240,5 +275,56 @@ public class EntryController extends BaseController {
         entry.setDistance(distance);
         
         entryDAO.save(entry);
+    }
+    
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    @ApiOperation(value = " Get weekly report ", response = WeeklySummary.class)
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "Authorization", value = "Authorization token", 
+                required = true, dataType = "string", paramType = "header")
+    })
+    @RequestMapping(value = "/summary", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseBody
+    public ResponseEntity<WeeklySummary> getWeeklySummary(
+            @ApiParam(name = "userId", value = "User id", required = true)
+            @RequestHeader("userId") Long userId,
+            @ApiParam(name = "weekStartDate", value = "Entry date", required = false)
+            @RequestParam(name = "weekStartDate", required = false) String weekStartDate,
+            HttpServletRequest request,
+            HttpServletResponse response) throws IOException {
+        logger.info("getWeeklySummary()");
+
+        if (weekStartDate == null) {
+            logger.info("weekStartDate is NULL");
+            Calendar c = Calendar.getInstance();
+            c.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+            weekStartDate = JsonDateSerializer.DATE_FORMAT.format(c.getTime());
+        }
+        
+        logger.info("weekStartDate :: " + weekStartDate);
+        
+        List<Object[]> results = em.createEntityManager()
+                .createNativeQuery(
+                        "select sum(distance) as totalDistance, (sum(distance) * 60 / sum(time)) as "
+                        + "averageSpeed from entries where user_id = :userId and date >= :weekStartDate and "
+                        + "date <= date_add(:weekStartDate, INTERVAL 6 day)"
+                )
+                .setParameter("userId", userId)
+                .setParameter("weekStartDate", weekStartDate).getResultList();
+
+        Object[] record = results.get(0);
+        
+        WeeklySummary summary = new WeeklySummary();
+        summary.setWeekStartDate(weekStartDate);
+        summary.setTotalDistance(
+            String.format( "%1f", (record[0]==null?0.0:(BigDecimal)record[0]).floatValue() )
+        );
+        summary.setAverageSpeed(
+            String.format(  "%2f", (record[1]==null?0.0:(BigDecimal)record[1]).floatValue() )      
+        );
+
+        logger.info(summary);
+        
+        return ResponseEntity.ok(summary);
     }
 }

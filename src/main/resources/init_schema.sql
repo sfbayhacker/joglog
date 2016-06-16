@@ -10,12 +10,17 @@ CREATE TABLE `roles` (
 	PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+insert into jogdb.roles (id, name) values ('ROLE_USER', 'User');
+insert into jogdb.roles (id, name) values ('ROLE_MANAGER', 'Manager');
+insert into jogdb.roles (id, name) values ('ROLE_ADMIN', 'Administrator');
+
 CREATE TABLE `users` (
 	`id` int NOT NULL AUTO_INCREMENT,
 	`email` varchar(50) DEFAULT NULL,
-	`password` varchar(20) DEFAULT NULL,
+	`password` varchar(100) DEFAULT NULL,
 	`name` varchar(50) DEFAULT NULL,
 	`role_id` varchar(20) NOT NULL,
+        `salt` varchar(20) NOT NULL,
 	`created_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`deleted` char(1) NOT NULL DEFAULT 'N',
 	PRIMARY KEY (`id`),

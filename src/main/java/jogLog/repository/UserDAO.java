@@ -2,6 +2,7 @@ package jogLog.repository;
 
 import jogLog.entity.User;
 import java.util.List;
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +18,5 @@ public interface UserDAO extends CrudRepository<User, Long> {
     User findOneByEmail(String email);
     User findOneByEmailAndPassword(String email, String password);
     void deleteByEmail(String email);
+    List<User> findByRole_idIn(Set<String> roles, Pageable pageable);
 }
