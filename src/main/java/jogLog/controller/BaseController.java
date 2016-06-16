@@ -87,6 +87,7 @@ public class BaseController {
                 roles.add(Role.USER);
                 break;
             case "ROLE_ADMIN":
+                roles.add(Role.USER);
                 roles.add(Role.MANAGER);
                 roles.add(Role.ADMIN);
                 break;
