@@ -81,6 +81,13 @@ jogLog.config(function ($routeProvider) {
             resolve: {loggedIn:isAdminOrUser}
         })
 
+        // route for the summary page
+        .when('/summary', {
+            templateUrl: '/views/summary.html',
+            controller: 'EntryController',
+            resolve: {loggedIn:isUser}
+        })
+
         // route for the add entry page
         .when('/addEntry', {
             templateUrl: '/views/addEntry.html',

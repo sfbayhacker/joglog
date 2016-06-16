@@ -102,7 +102,7 @@ public class UserController extends BaseController {
             .hashString(password + salt, Charsets.UTF_8)
             .toString();
             
-            System.out.println("hashString :: " + (password + salt));
+            logger.info("hashString :: " + (password + salt));
             
             user.setPassword(hashed);
             user.setRole(new Role(roleId));

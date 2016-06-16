@@ -16,6 +16,7 @@
         $scope.showNewEntryForm = showNewEntryForm;
         $scope.showEditEntryForm = showEditEntryForm;
         $scope.filterEntries = filterEntries;
+        $scope.getWeeklySummary = getWeeklySummary;
         
         $scope.isAdmin = LayoutService.isAdmin;
         $scope.isUser = LayoutService.isUser;
@@ -135,6 +136,15 @@
                     getAllEntries();
                 });
             }
+        }
+        
+        function getWeeklySummary() {
+            console.log("EntryController::getWeeklySummary()");
+            console.log(weekStartDate.value);
+            EntryService.getWeeklySummary(weekStartDate.value, function (response) {
+                console.log(response.data);
+                $scope.summary = response.data;
+            });
         }
     }
 }());

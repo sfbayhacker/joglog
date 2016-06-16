@@ -17,6 +17,7 @@ function EntryService($http, $rootScope) {
     service.create = create;
     service.update = update;
     service.del = del;
+    service.getWeeklySummary = getWeeklySummary;
 
     service.editingEntry = {};
     service.entryUserForAdd = -1;
@@ -56,6 +57,13 @@ function EntryService($http, $rootScope) {
         console.log('EntryService::getEntry()');
         return $http({method: 'GET', url: '/api/entries/' + id})
                 .then(callback, handleError('Error getting entries by id'));
+    }
+
+    function getWeeklySummary(weekStartDate, callback) {
+        console.log('EntryService::getWeeklySummary()');
+        return $http({method: 'GET', url: '/api/entries/summary',
+                params: {user: $rootScope.globals.currentUser.id, weekStartDate: weekStartDate}})
+                .then(callback, handleError('Error getting weekly summary'));
     }
 
     function create(entry, callback) {

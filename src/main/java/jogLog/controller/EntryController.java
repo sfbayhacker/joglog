@@ -11,11 +11,14 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.logging.Level;
 import javax.persistence.EntityManagerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -286,20 +289,34 @@ public class EntryController extends BaseController {
     @RequestMapping(value = "/summary", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<WeeklySummary> getWeeklySummary(
-            @ApiParam(name = "userId", value = "User id", required = true)
-            @RequestHeader("userId") Long userId,
+            @ApiParam(name = "user", value = "User id", required = true)
+            @RequestParam("user") Long userId,
             @ApiParam(name = "weekStartDate", value = "Entry date", required = false)
             @RequestParam(name = "weekStartDate", required = false) String weekStartDate,
             HttpServletRequest request,
             HttpServletResponse response) throws IOException {
         logger.info("getWeeklySummary()");
 
-        if (weekStartDate == null) {
+        Calendar c;
+        if (weekStartDate == null || weekStartDate.trim().equals("")) {
             logger.info("weekStartDate is NULL");
-            Calendar c = Calendar.getInstance();
-            c.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-            weekStartDate = JsonDateSerializer.DATE_FORMAT.format(c.getTime());
+            c = Calendar.getInstance();
+        } else {
+            DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            try {
+                Date date = format.parse(weekStartDate);
+                c = Calendar.getInstance();
+                c.setTime(date);
+            } catch (ParseException ex) {
+                ex.printStackTrace();
+                logger.error(ex.getMessage());
+                response.sendError(HttpStatus.BAD_REQUEST.value(), BAD_REQUEST_MESSAGE);
+                return null;
+            }
         }
+        
+        c.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+        weekStartDate = JsonDateSerializer.DATE_FORMAT.format(c.getTime());
         
         logger.info("weekStartDate :: " + weekStartDate);
         
@@ -317,10 +334,10 @@ public class EntryController extends BaseController {
         WeeklySummary summary = new WeeklySummary();
         summary.setWeekStartDate(weekStartDate);
         summary.setTotalDistance(
-            String.format( "%1f", (record[0]==null?0.0:(BigDecimal)record[0]).floatValue() )
+            String.format( "%.1f", (record[0]==null?0.0:(BigDecimal)record[0]).floatValue() )
         );
         summary.setAverageSpeed(
-            String.format(  "%2f", (record[1]==null?0.0:(BigDecimal)record[1]).floatValue() )      
+            String.format(  "%.2f", (record[1]==null?0.0:(BigDecimal)record[1]).floatValue() )      
         );
 
         logger.info(summary);

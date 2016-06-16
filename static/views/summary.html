@@ -1,0 +1,31 @@
+<div ng-controller="EntryController">
+    <h2>Weekly Report</h2>
+    <hr/>
+    <div style="float: top; width: 100%;">
+        <form ng-submit="getWeeklySummary()">
+            <div style="padding-top: 10px; padding-bottom: 10px; float: top;">
+                <div style="float: left; padding-left: 2px; padding-right: 2px;">
+                    <label for="weekStartDate">Date:</label>
+                    <input type="date" placeholder="yyyy-MM-dd" name="weekStartDate" id="weekStartDate" class="form-control"/>
+                </div>
+                <div style="float: left; padding-left: 2px; padding-right: 2px; padding-top: 25px;">
+                    <input type="submit" value="Submit" class="btn btn-small btn-primary"/>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div style="float: top;">
+        <div>
+            <label>Week Start Date</label>
+            <label>{{ summary.weekStartDate}}</label>
+        </div>
+        <div>
+            <label>Total Distance</label>
+            <label>{{ summary.totalDistance}}</label>
+        </div>
+        <div>
+            <label>Avg. Speed</label>
+            <label>{{ summary.averageSpeed}}</label>
+        </div>
+    </div>
+</div>
